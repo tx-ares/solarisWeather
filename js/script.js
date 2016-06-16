@@ -1,31 +1,37 @@
-console.log("Do a barrel roll!")
+console.log("This is the REAL solarisWeather!")
 
-// --------------- Global Variables -----------------//
+console.log(navigator.geolocation.getCurrentPosition)
 
-var apiKey = "2f8bbb054008fb90b18775a618675ef6"
+//NOTE : API KEY CHANGED.  apiKey variable contains updated api key.  06-07-16
+
+//Url Components
+
+var apiKey = "6fec34b5cf75de90f7d3add762e6e30b"
 var baseUrl = "https://api.forecast.io/forecast/"
-// var latLong = "/29.7605,-95.3698"
-var jsonp = "?callback=?"
-var fullUrl = baseUrl + apiKey + latLong + jsonp
+var latLong = "/29.7605,-95.3698"
+var params = "?callback=?"
+
+var fullUrl = baseUrl + apiKey + latLong + params
 var tempContainer = document.querySelector("#tempContainer")
 
+//DOM Nodes
 var currentlyButton = document.querySelector(".currently")
 var hourlyButton = document.querySelector(".hourly")
 var dailyButton = document.querySelector(".daily")
 
-// -----------------  Getting data and Routing ------------------ //
+//Data Fetching
 
 var successCallback = function(positionObject) {
     var lat = positionObject.coords.latitude,
         long = positionObject.coords.longitude
 
     // GOAL: https://api.forecast.io/forecast/2f8bbb054008fb90b18775a618675ef6/37.8267,-122.423
-    var fullUrl = baseUrl + "/" + apiKey + '/' + lat + "," + long + jsonp
+    var fullUrl = baseUrl + "/" + apiKey + '/' + lat + "," + long + params
     console.log(fullUrl)
     
     $.getJSON(fullUrl).then(
         function(resp) {
-        	console.log(resp)
+            console.log(resp)
             tempContainer.innerHTML  = objToHTML(resp)
         })
 }
@@ -45,93 +51,119 @@ var handleJsonData = function(jsonData) {
     tempContainer.innerHTML = htmlString
 }
 
-//---------------- View Templates -------------------//
+//View
 
-var objToHTML = function(jsonObj) {
+var objToHTML = function(jsonData) {
+    
+
     var tempString = ""
     tempString += '<div id="weatherContainer">'  
-    tempString +=    '<p class="temperature"> Temperature: ' + jsonObj.currently.temperature + ' °f</p>' 
-    tempString +=    '<p class="rainChance"> Rain chance: ' + jsonObj.currently.precipProbability + ' %</p>'
-    tempString +=    '<p class="summary"> Summary: ' + jsonObj.currently.summary + '</p>'
+    tempString += '<canvas id="icon1" width="128" height="128"></canvas>'
+    tempString +=    '<p class="temperature"> Temperature: ' + jsonData.currently.temperature + ' °f</p>' 
+    tempString +=    '<p class="rainChance"> Rain chance: ' + jsonData.currently.precipProbability + ' %</p>'
+    tempString +=    '<p class="summary"> Summary: ' + jsonData.currently.summary + '</p>'
     tempString += '</div>'
-    console.log(jsonObj)
+    var iconString = jsonData.currently.icon
+    
+    console.log(jsonData)
     tempContainer.innerHTML = tempString
-    // return tempString
+    skycons(iconString)
 }
 
-//------------Where I left off, trying to loop through the days in 'data' array of jsonObj-------//
-var dailyToHTML = function(jsonObj) {
-    var tempString = ""
-    var weekArray = jsonData.daily.temperature
+var dailyToHTML = function(jsonData) { //create html string with data obtained from jsonData object//
+    var htmlString = ''
+    var daysArray = jsonData.daily.data
+        
+        htmlString += '<p>' + jsonData.daily.summary + '</p>'
 
-    for (var i=0 ; i < weekArray.length; i++) {
-    var dayObj = weekArray[i]
-    // tempString += '<div id="weatherContainer">'
-    tempString += '<div class="day">'  
-    tempString +=    '<p class="summary"> Summary: ' + jsonObj.daily.summary + '</p>'
-    tempString += '</div>'
-}
-    console.log(tempString)
-    tempContainer.innerHTML = tempString
-    // return tempString
+    for (var i = 0; i < 5; i ++) { //Create for loop to obtain multiple days of weather//
+        var dayObject = daysArray[i] 
+        htmlString += '<div class="day">' //create a div to house your data
+        htmlString += '<canvas id="icon1" width="128" height="128"></canvas>'
+        htmlString += '<p class="max">' + dayObject.temperatureMax.toPrecision(2) + '&deg; High</p>' ///append the the tempatureMax attribute to the html string//
+        htmlString += '<p class="min">' + dayObject.temperatureMin.toPrecision(2) + '&deg; Low</p>'///append the the tempatureMin attribute to the html string//
+        htmlString += '</div>' //close div//
+    }
+    tempContainer.innerHTML = htmlString //change innerHtml of container div to the new string//
+     skycons(iconString)
 }
 
-var hourlyToHTML = function(jsonObj) {
-    var tempString = ''
-    tempString += '<div id="weatherContainer">'  
-    tempString +=    '<p class="temperature"> Temperature: ' + jsonObj.currently.temperature + '!!! °f</p>' 
-    tempString +=    '<p class="rainChance"> Rain chance: ' + jsonObj.currently.precipProbability + ' %</p>'
-    tempString +=    '<p class="summary"> Summary: ' + jsonObj.currently.summary + '</p>'
-    tempString += '</div>'
-    console.log(jsonObj)
-    tempContainer.innerHTML = '<img src="images/orangeLoaderGif.gif"'
-    tempContainer.innerHTML = tempString
-    // return tempString
+var hourlyToHTML = function(jsonData) { //create html string with data obtained from jsonData object//
+    var htmlString = ''
+    var hoursArray = jsonData.hourly.data
+    for (var i = 0; i < 24; i ++) {  //create for loop to obtain multiple hours of weather//
+        var hourObject = hoursArray[i]
+        htmlString += '<div class="hour">' //create a div to house your data
+        // htmlString += '<p class="hour">' + hourObject.
+        htmlString += '<p class="hourTime">' + hourObject.time + '</p>'
+        htmlString += '<p class="hourTemp">' + hourObject.temperature.toPrecision(2) + '&deg;</p>' ///create Html String displaying with the temperature attribute//
+        htmlString += '<p class="hourIcon">' + hourObject.icon + '</p>'
+        htmlString += '</div>' //close div//
+    }
+    tempContainer.innerHTML = htmlString //change innerHtml of container div//
 }
+
+//Handlers
 
 var handleForecastTypeClick = function(eventObj) {
-	console.log(eventObj)
-	console.log(eventObj.target)
-	console.log(eventObj.target.className)
-	console.log('this works!')
 
-	window.location.hash = eventObj.target.className
+    window.location.hash = eventObj.target.className
 }
+
+//Router
 
 var hashController = function() {
-	console.log('hashController') 	
-	console.log(window.location.hash)
-	if (window.location.hash === '#daily') {
-		
-		var promise = $.getJSON(fullUrl)
-		promise.then(dailyToHTML)
-	
-		// tempContainer.innerHTML = dailyToHTML 
-	}
 
-	else if (window.location.hash === '#hourly'){
+    if (window.location.hash === '#daily') {
+        
+        var promise = $.getJSON(fullUrl)
+        promise.then(dailyToHTML)
+    
+    }
 
-		var promise = $.getJSON(fullUrl)
-		promise.then(hourlyToHTML)
-		// tempContainer.innerHTML = '<h1>Hourly</h1>'
-	}
+    if (window.location.hash === '#hourly'){
+        var promise = $.getJSON(fullUrl)
+        promise.then(hourlyToHTML)
+    }
 
-	else {
-
-		var promise = $.getJSON(fullUrl)
-		promise.then(objToHTML)
-		// tempContainer.innerHTML	= '<h1>Currently</h1>'
-	}
+    if (window.location.hash === '#currently'){
+        var promise = $.getJSON(fullUrl)
+        promise.then(objToHTML)
+    }
 
 }
 
-// var forecastPromise = $.getJSON(fullUrl) +
-// forecastPromise.then(handleJsonData)
+//Skycons 
 
-// -----------------  Setting it off! ------------------ //
+var skycons = function(iconString) {
+  var formattedIcon = iconString.toUpperCase().replace(/-/g,"_")
+  var skycons = new Skycons({"color": "white"});
+  // on Android, a nasty hack is needed: {"resizeClear": true}
+
+  // you can add a canvas by it's ID...
+  skycons.add("icon1", Skycons[formattedIcon]);
+
+  // ...or by the canvas DOM element itself.
+  //skycons.add(document.getElementById("icon2"), Skycons.RAIN);
+
+  // if you're using the Forecast API, you can also supply
+  // strings: "partly-cloudy-day" or "rain".
+
+  // start animation!
+  skycons.play();
+
+  // you can also halt animation with skycons.pause()
+
+  // want to change the icon? no problem:
+  //skycons.set("icon1", Skycons.PARTLY_CLOUDY_NIGHT);
+
+  // want to remove one altogether? no problem:
+  //skycons.remove("icon2");
+}
+
+//Homepage Loader
 
 navigator.geolocation.getCurrentPosition(successCallback, errorCallback)
-
 window.addEventListener('hashchange', hashController)
 
 currentlyButton.addEventListener('click', handleForecastTypeClick)
