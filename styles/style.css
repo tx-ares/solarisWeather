@@ -1,0 +1,61 @@
+* {
+	box-sizing: border-box;
+	text-align: center;
+	font-family: Days-fontfacekit;
+}
+
+@font-face { 
+	font-family:Days-fontfacekit;
+	src: url('Days-webfont.eot');
+	src: url('Days-webfont.eot') format('eot'),
+	     url('Days-webfont.woff') format('woff'),
+	     url('Days-webfont.ttf') format('truetype'),
+	     url('Days-webfont.svg') format('svg');
+}
+
+p {
+	font-size: 2em;
+}
+
+body {
+	background-image: url("Sunset-In-City.jpg");
+	background-position:bottom-center;
+	background-size:100%;
+	background-repeat:no-repeat;
+	background-color:#592b1d;
+}
+
+#nav-container {
+	background-color: rgba(41,41,41,.5);
+	border-bottom: 2px solid #6D6B6C;
+	vertical-align:top;
+}
+
+#title {
+	font-family: Days-fontfacekit;
+	font: 40px bolder;
+	text-align: center;
+	color: ghostwhite;
+}
+
+#logoImg {
+	width:70px;
+	height:70px;
+}
+.mainImg {
+	/* border: 2px solid lawngreen; */
+}
+
+.temperature {
+	/* border: 2px solid salmon; */
+}
+
+/* .day1 {
+	border: 2px solid tomato;
+} */
+
+.day {
+	/* border: 2px solid cyan; */
+	display:inline-block;
+	padding: 20px;
+}
