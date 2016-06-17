@@ -1,76 +1,65 @@
-console.log("This is the REAL solarisWeather!")
 
-console.log(navigator.geolocation.getCurrentPosition)
+console.log("This is the REAL solarisWeather!")
 
 //NOTE : API KEY CHANGED.  apiKey variable contains updated api key.  06-07-16
 
 //Url Components
-
 var apiKey = "6fec34b5cf75de90f7d3add762e6e30b"
 var baseUrl = "https://api.forecast.io/forecast/"
-var latLong = "/29.7605,-95.3698"
 var params = "?callback=?"
 
-var fullUrl = baseUrl + apiKey + latLong + params
-var tempContainer = document.querySelector("#tempContainer")
 
 //DOM Nodes
+var containerEl = document.querySelector("#tempContainer")
 var currentlyButton = document.querySelector(".currently")
 var hourlyButton = document.querySelector(".hourly")
 var dailyButton = document.querySelector(".daily")
 
-//Data Fetching
 
-var successCallback = function(positionObject) {
-    var lat = positionObject.coords.latitude,
-        long = positionObject.coords.longitude
-
-    // GOAL: https://api.forecast.io/forecast/2f8bbb054008fb90b18775a618675ef6/37.8267,-122.423
-    var fullUrl = baseUrl + "/" + apiKey + '/' + lat + "," + long + params
-    console.log(fullUrl)
-    
-    $.getJSON(fullUrl).then(
-        function(resp) {
-            console.log(resp)
-            tempContainer.innerHTML  = objToHTML(resp)
-        })
+//Location Reader
+function locationReader(geolocation) {
+    console.log(geolocation)
+    location.hash = geolocation.coords.latitude + '/' + geolocation.coords.longitude + '/currently'
 }
 
+
+//Data Fetching
 var errorCallback = function(error) {
     console.log(error)
 }
 
-var handleJsonData = function(jsonData) {
-    var htmlString = ""
-    var currentlyObj = jsonData.currently
-    for (var prop in currentlyObj) {
-        var value = currentlyObj[prop]
-        console.log(value)
+var hashToObject = function() {
+    var hashRoute = location.hash.substr(1)
+    console.log(hashRoute)
+    var hashParts = hashRoute.split('/')
+    return {
+        lat: hashParts[0],
+        lng: hashParts[1],
+        viewType: hashParts[2]
     }
-    htmlString += objToHTML(currentlyObj)
-    tempContainer.innerHTML = htmlString
 }
 
-//View
 
-var objToHTML = function(jsonData) {
-    
-
-    var tempString = ""
-    tempString += '<div id="weatherContainer">'  
-    tempString += '<canvas id="icon1" width="128" height="128"></canvas>'
-    tempString +=    '<p class="temperature"> Temperature: ' + jsonData.currently.temperature + ' °f</p>' 
-    tempString +=    '<p class="rainChance"> Rain chance: ' + jsonData.currently.precipProbability + ' %</p>'
-    tempString +=    '<p class="summary"> Summary: ' + jsonData.currently.summary + '</p>'
-    tempString += '</div>'
+//Views
+var currentlyToHTML = function(jsonData) {
+    console.log(jsonData)
+    console.log(jsonData.currently)
+    var htmlString = ""
+    htmlString += '<div id="weatherContainer">'  
+    htmlString += '<canvas id="icon1" width="128" height="128"></canvas>'
+    htmlString +=    '<p class="temperature"> Temperature: ' + jsonData.currently.temperature + ' °f</p>' 
+    htmlString +=    '<p class="rainChance"> Rain chance: ' + jsonData.currently.precipProbability + ' %</p>'
+    htmlString +=    '<p class="summary"> Summary: ' + jsonData.currently.summary + '</p>'
+    htmlString += '</div>'
     var iconString = jsonData.currently.icon
     
-    console.log(jsonData)
-    tempContainer.innerHTML = tempString
+    // console.log(jsonData)
+    containerEl.innerHTML = htmlString
     skycons(iconString)
 }
 
-var dailyToHTML = function(jsonData) { //create html string with data obtained from jsonData object//
+var dailyToHTML = function(jsonData) { 
+    var iconString = jsonData.currently.icon
     var htmlString = ''
     var daysArray = jsonData.daily.data
         
@@ -78,17 +67,20 @@ var dailyToHTML = function(jsonData) { //create html string with data obtained f
 
     for (var i = 0; i < 5; i ++) { //Create for loop to obtain multiple days of weather//
         var dayObject = daysArray[i] 
+
         htmlString += '<div class="day">' //create a div to house your data
         htmlString += '<canvas id="icon1" width="128" height="128"></canvas>'
         htmlString += '<p class="max">' + dayObject.temperatureMax.toPrecision(2) + '&deg; High</p>' ///append the the tempatureMax attribute to the html string//
         htmlString += '<p class="min">' + dayObject.temperatureMin.toPrecision(2) + '&deg; Low</p>'///append the the tempatureMin attribute to the html string//
         htmlString += '</div>' //close div//
+        
+        skycons(iconString)
     }
-    tempContainer.innerHTML = htmlString //change innerHtml of container div to the new string//
-     skycons(iconString)
+    containerEl.innerHTML = htmlString //change innerHtml of container div to the new string//
+     
 }
 
-var hourlyToHTML = function(jsonData) { //create html string with data obtained from jsonData object//
+var hourlyToHTML = function(jsonData) { 
     var htmlString = ''
     var hoursArray = jsonData.hourly.data
     for (var i = 0; i < 24; i ++) {  //create for loop to obtain multiple hours of weather//
@@ -99,38 +91,61 @@ var hourlyToHTML = function(jsonData) { //create html string with data obtained 
         htmlString += '<p class="hourTemp">' + hourObject.temperature.toPrecision(2) + '&deg;</p>' ///create Html String displaying with the temperature attribute//
         htmlString += '<p class="hourIcon">' + hourObject.icon + '</p>'
         htmlString += '</div>' //close div//
+        var iconString = jsonData.currently.icon
+        skycons(iconString)
     }
-    tempContainer.innerHTML = htmlString //change innerHtml of container div//
+    containerEl.innerHTML = htmlString //change innerHtml of container div//
 }
 
-//Handlers
-
-var handleForecastTypeClick = function(eventObj) {
-
-    window.location.hash = eventObj.target.className
-}
 
 //Router
+var router = function() {
+console.log('router activated.')
 
-var hashController = function() {
+    if (!location.hash) {
+        console.log("Blank hash detected, finding one...")
+        navigator.geolocation.getCurrentPosition(locationReader,errorCallback)
+        return 
+    }
+    var hashData = hashToObject()
+    console.log(hashData)
+    var weatherPromise = fetchData(hashData.lat,hashData.lng)
 
-    if (window.location.hash === '#daily') {
-        
-        var promise = $.getJSON(fullUrl)
-        promise.then(dailyToHTML)
-    
+    if (hashData.viewType === 'daily') {
+        console.log("Daily view rendered!")
+        weatherPromise.then(dailyToHTML)
     }
 
-    if (window.location.hash === '#hourly'){
-        var promise = $.getJSON(fullUrl)
-        promise.then(hourlyToHTML)
+    if (hashData.viewType === 'hourly'){
+        console.log("Hourly view rendered!")
+        weatherPromise.then(hourlyToHTML)
     }
 
-    if (window.location.hash === '#currently'){
-        var promise = $.getJSON(fullUrl)
-        promise.then(objToHTML)
+    if (hashData.viewType === 'currently'){
+        console.log("Currently view rendered!")
+        weatherPromise.then(currentlyToHTML)
     }
 
+}
+
+var fetchData = function(lat,lng) {
+    console.log('Promise contructed!')
+    var url = baseUrl + apiKey + '/' + lat + ',' + lng
+    var promise = $.getJSON(url)
+    return promise
+}
+
+
+//Handlers
+var handleForecastTypeClick = function(eventObj) {
+    var viewType = eventObj.target.className
+    console.log(viewType)
+    if (!viewType) {
+        return 
+    }
+    var hashData = hashToObject()
+    console.log(hashData)
+    location.hash = hashData.lat + '/' + hashData.lng + '/' + viewType
 }
 
 //Skycons 
@@ -161,11 +176,12 @@ var skycons = function(iconString) {
   //skycons.remove("icon2");
 }
 
-//Homepage Loader
-
-navigator.geolocation.getCurrentPosition(successCallback, errorCallback)
-window.addEventListener('hashchange', hashController)
 
 currentlyButton.addEventListener('click', handleForecastTypeClick)
 hourlyButton.addEventListener('click', handleForecastTypeClick)
 dailyButton.addEventListener('click', handleForecastTypeClick)
+
+
+//Homepage Loader
+window.addEventListener('hashchange', router)
+router()

@@ -26,9 +26,10 @@ body {
 }
 
 #nav-container {
+	/* position: fixed; */
 	background-color: rgba(41,41,41,.5);
 	border-bottom: 2px solid #6D6B6C;
-	vertical-align:top;
+	vertical-align: top;
 }
 
 #title {
