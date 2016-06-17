@@ -8,53 +8,74 @@ console.log(navigator.geolocation.getCurrentPosition)
 
 var apiKey = "6fec34b5cf75de90f7d3add762e6e30b"
 var baseUrl = "https://api.forecast.io/forecast/"
-var latLong = "/29.7605,-95.3698"
+// var latLong = "/29.7605,-95.3698"
 var params = "?callback=?"
 
-var fullUrl = baseUrl + apiKey + latLong + params
+// var fullUrl = baseUrl + apiKey + latLong + params
 var tempContainer = document.querySelector("#tempContainer")
 
 //DOM Nodes
+var buttonEl = document.querySelector("button")
 var currentlyButton = document.querySelector(".currently")
 var hourlyButton = document.querySelector(".hourly")
 var dailyButton = document.querySelector(".daily")
 
 //Data Fetching
+// var fetchCoords = function(lat, lng) {
+//     // console.log("in fetchCoords")
+//     // console.log(positionObject)
+//     var lat = positionObject.coords.latitude
+//      // console.log(positionObject.coords.latitude)
+//     var lng = positionObject.coords.longitude
+//          // console.log(positionObject.coords.longitude)
 
-var successCallback = function(positionObject) {
-    var lat = positionObject.coords.latitude,
-        long = positionObject.coords.longitude
 
-    // GOAL: https://api.forecast.io/forecast/2f8bbb054008fb90b18775a618675ef6/37.8267,-122.423
-    var fullUrl = baseUrl + "/" + apiKey + '/' + lat + "," + long + params
-    console.log(fullUrl)
+//     // GOAL: https://api.forecast.io/forecast/2f8bbb054008fb90b18775a618675ef6/37.8267,-122.423
+//     var fullUrl = baseUrl + '/' + apiKey + '/' + lat + "," + lng + params
+//     console.log(fullUrl + " <<<< FULL URL")
+
+//     return fullUrl
     
-    $.getJSON(fullUrl).then(
-        function(resp) {
-            console.log(resp)
-            tempContainer.innerHTML  = objToHTML(resp)
-        })
-}
+//     var promise = $.getJSON(fullUrl)
+        
+//         promise.then(function(jsonData) {
+//             console.log(jsonData)
+//             tempContainer.innerHTML  = currentlyToHTML(jsonData)
+//         })
+// }
+
+
 
 var errorCallback = function(error) {
     console.log(error)
 }
 
-var handleJsonData = function(jsonData) {
-    var htmlString = ""
-    var currentlyObj = jsonData.currently
-    for (var prop in currentlyObj) {
-        var value = currentlyObj[prop]
-        console.log(value)
+var hashToObject = function() {
+    var hashRoute = location.hash.substr(1)
+    var hashParts = hashRoute.split('/')
+    return {
+        lat: hashParts[0],
+        lng: hashParts[1],
+        viewType: hashParts[2]
     }
-    htmlString += objToHTML(currentlyObj)
-    tempContainer.innerHTML = htmlString
 }
+
+// var handleJsonData = function(jsonData) {
+//     var htmlString = ""
+//     var currentlyObj = jsonData.currently
+//     for (var prop in currentlyObj) {
+//         var value = currentlyObj[prop]
+//         console.log(value)
+//     }
+//     htmlString += currentlyToHTML(currentlyObj)
+//     tempContainer.innerHTML = htmlString
+// }
 
 //View
 
-var objToHTML = function(jsonData) {
-    
+var currentlyToHTML = function(jsonData) {
+    console.log("Currently fired!")
+    console.log(jsonData)
 
     var tempString = ""
     tempString += '<div id="weatherContainer">'  
@@ -71,6 +92,8 @@ var objToHTML = function(jsonData) {
 }
 
 var dailyToHTML = function(jsonData) { //create html string with data obtained from jsonData object//
+     console.log("Daily fired!")
+
     var htmlString = ''
     var daysArray = jsonData.daily.data
         
@@ -89,16 +112,17 @@ var dailyToHTML = function(jsonData) { //create html string with data obtained f
 }
 
 var hourlyToHTML = function(jsonData) { //create html string with data obtained from jsonData object//
+    console.log("Hourly fired!")
+
     var htmlString = ''
     var hoursArray = jsonData.hourly.data
-    for (var i = 0; i < 24; i ++) {  //create for loop to obtain multiple hours of weather//
+    for (var i = 0; i < 24; i ++) {  
         var hourObject = hoursArray[i]
-        htmlString += '<div class="hour">' //create a div to house your data
-        // htmlString += '<p class="hour">' + hourObject.
+        htmlString += '<div class="hour">' 
         htmlString += '<p class="hourTime">' + hourObject.time + '</p>'
         htmlString += '<p class="hourTemp">' + hourObject.temperature.toPrecision(2) + '&deg;</p>' ///create Html String displaying with the temperature attribute//
         htmlString += '<p class="hourIcon">' + hourObject.icon + '</p>'
-        htmlString += '</div>' //close div//
+        htmlString += '</div>' 
     }
     tempContainer.innerHTML = htmlString //change innerHtml of container div//
 }
@@ -106,31 +130,47 @@ var hourlyToHTML = function(jsonData) { //create html string with data obtained 
 //Handlers
 
 var handleForecastTypeClick = function(eventObj) {
-
+    console.log(" <<<<<< In in handleForeCastTypeClick")
     window.location.hash = eventObj.target.className
 }
 
 //Router
 
-var hashController = function() {
+var router = function() {
+
+    if (!location.hash) {
+    navigator.geolocation.getCurrentPosition(fetchCoords, errorCallback)    
+    }
+
+    var hashData = hashToObject()
+    var promise = fetchCoords(hashData.lat,hashData.lng)
 
     if (window.location.hash === '#daily') {
         
-        var promise = $.getJSON(fullUrl)
+        // var promise = $.getJSON(fullUrl)
         promise.then(dailyToHTML)
     
     }
 
     if (window.location.hash === '#hourly'){
-        var promise = $.getJSON(fullUrl)
+        // var promise = $.getJSON(fullUrl)
         promise.then(hourlyToHTML)
     }
 
     if (window.location.hash === '#currently'){
-        var promise = $.getJSON(fullUrl)
-        promise.then(objToHTML)
+        // console.log(fullUrl)
+        // var promise = $.getJSON(fullUrl)
+        promise.then(currentlyToHTML)
     }
 
+}
+
+var fetchCoords = function(lat,lng) {
+    console.log(lat)
+    console.log(lng)
+    var url = baseUrl + apiKey + '/' + lat + ',' + lng
+    var promise = $.getJSON(url)
+    return promise
 }
 
 //Skycons 
@@ -161,11 +201,27 @@ var skycons = function(iconString) {
   //skycons.remove("icon2");
 }
 
+
+// navigator.geolocation.getCurrentPosition(fetchCoords, errorCallback)
+window.addEventListener('hashchange', router)
+
+var handleViewSwitch = function(eventObject) {
+    var buttonEl = eventObject.target
+    console.log(buttonEl)
+    var viewType = buttonEl.value
+    if (!viewType) {
+        return 
+    }
+    var hashData = hashToObject()
+    location.hash = hashData.lat + '/' + hashData.lng + '/' + viewType
+}
+
+buttonEl.addEventListener('click, handleViewSwitch')
+
+// currentlyButton.addEventListener('click', handleForecastTypeClick)
+// hourlyButton.addEventListener('click', handleForecastTypeClick)
+// dailyButton.addEventListener('click', handleForecastTypeClick)
+
 //Homepage Loader
-
-navigator.geolocation.getCurrentPosition(successCallback, errorCallback)
-window.addEventListener('hashchange', hashController)
-
-currentlyButton.addEventListener('click', handleForecastTypeClick)
-hourlyButton.addEventListener('click', handleForecastTypeClick)
-dailyButton.addEventListener('click', handleForecastTypeClick)
+// location.hash = 'currently'
+router()
