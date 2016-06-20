@@ -71,20 +71,40 @@ function dailyToHTML(jsonData) {
 
     for (var i = 0; i < 5; i++) {
         var dayObject = daysArray[i]
-        var iconString = jsonData.daily.icon
+        var iconString = dayObject.icon
         console.log(dayObject)
+        // console.log(i)
+        // var counter = i++
+
+        var iconId = "icon" + i  
+        console.log(typeof iconId, iconId)
+        // create a variable called iconId. iconId will be set for each canvas element,
+        // and you will pass it into the skycons function, so that each skycon is 
+        // synched up with the weather-day that you are adding it to.
         htmlString += '<div class="day">'
-        htmlString += '<canvas id="icon1" width="128" height="128"></canvas>'
+        htmlString += '<canvas id="' + iconId + '" width="128" height="128"></canvas>'
+        // console.log(htmlString) 
         htmlString += '<p class="max">' + dayObject.temperatureMax.toPrecision(2) + '&deg; High</p>' ///append the the tempatureMax attribute to the html string//
         htmlString += '<p class="min">' + dayObject.temperatureMin.toPrecision(2) + '&deg; Low</p>' ///append the the tempatureMin attribute to the html string//
         htmlString += '</div>'
 
         console.log(iconString + " <<< this is getting passed into skycons.")
+        console.log(typeof i)
+        // skycons(iconString, i)
+        console.log(htmlString)
 
-        // console.log(skycons(iconString))
+        
+
+        }
+
+        var allSkycons = document.querySelectorAll('canvas');
+
+        for (var i = 0 ; i < allSkycons.length; i++){
+            var iconDataValueForElement = allSkycons[i].dataset.icon 
+            skycons( iconDataValueForElement, i+1 )
     }
     containerEl.innerHTML = htmlString
-    skycons(iconString)
+    
 }
 
 function hourlyToHTML(jsonData) {
@@ -193,13 +213,19 @@ function searchByCity(eventObj) {
 
 
 //Skycons for fancy animations.
-function skycons(iconString) {
+function skycons(iconString,i) {
     var formattedIcon = iconString.toUpperCase().replace(/-/g, "_")
     var skycons = new Skycons({ "color": "white" });
     // on Android, a nasty hack is needed: {"resizeClear": true}
+    
+    // console.log(iconString)
+    // console.log(i)
 
-    // you can add a canvas by it's ID...
-    skycons.add("icon1", Skycons[formattedIcon]);
+    var iconId = "icon" + i
+    console.log(typeof iconId, iconId)
+     
+    // you can add to a canvas by it's ID...
+    skycons.add(iconId, Skycons[formattedIcon]);
 
     // ...or by the canvas DOM element itself.
     //skycons.add(document.getElementById("icon2"), Skycons.RAIN);
@@ -227,46 +253,47 @@ dailyButtonEl.addEventListener('click', handleForecastTypeClick)
 searchBarEl.addEventListener('keydown', searchByCity)
 
 //Locate by City
-function initialize() {
-    geocoder = new google.maps.Geocoder();
-  }
+// function initialize() {
+//     geocoder = new google.maps.Geocoder();
+//   }
 
-  function codeLatLng(lat, lng) {
+//   function codeLatLng(lat, lng) {
 
-    var latlng = new google.maps.LatLng(lat, lng);
-    geocoder.geocode({'latLng': latlng}, function(results, status) {
-      if (status == google.maps.GeocoderStatus.OK) {
-      console.log(results)
-        if (results[1]) {
-         //formatted address
-         alert(results[0].formatted_address)
-        //find country name
-             for (var i=0; i<results[0].address_components.length; i++) {
-            for (var b=0;b<results[0].address_components[i].types.length;b++) {
+//     var latlng = new google.maps.LatLng(lat, lng);
+//     geocoder.geocode({'latLng': latlng}, function(results, status) {
+//       if (status == google.maps.GeocoderStatus.OK) {
+//       console.log(results)
+//         if (results[1]) {
+//          //formatted address
+//          alert(results[0].formatted_address)
+//         //find country name
+//              for (var i=0; i<results[0].address_components.length; i++) {
+//             for (var b=0;b<results[0].address_components[i].types.length;b++) {
 
-            //there are different types that might hold a city admin_area_lvl_1 usually does in come cases looking for sublocality type will be more appropriate
-                if (results[0].address_components[i].types[b] == "administrative_area_level_1") {
-                    //this is the object you are looking for
-                    city= results[0].address_components[i];
-                    break;
-                }
-            }
-        }
-        //city data
-        alert(city.short_name + " " + city.long_name)
+//             //there are different types that might hold a city admin_area_lvl_1 usually does in come cases looking for sublocality type will be more appropriate
+//                 if (results[0].address_components[i].types[b] == "administrative_area_level_1") {
+//                     //this is the object you are looking for
+//                     city= results[0].address_components[i];
+//                     break;
+//                 }
+//             }
+//         }
+//         //city data
+//         alert(city.short_name + " " + city.long_name)
 
 
-        } else {
-          alert("No results found");
-        }
-      } else {
-        alert("Geocoder failed due to: " + status);
-      }
-    });
-  }
+//         } else {
+//           alert("No results found");
+//         }
+//       } else {
+//         alert("Geocoder failed due to: " + status);
+//       }
+//     });
+//   }
 
 //4 - Add event listner to page to listen for the hash change, once it does it will invoke router.
 //Homepage Loader
 window.addEventListener('hashchange', router)
 router()
-initialize()
+
+// initialize()
