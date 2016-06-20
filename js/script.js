@@ -97,11 +97,6 @@ function dailyToHTML(jsonData) {
 
         }
 
-        var allSkycons = document.querySelectorAll('canvas');
-
-        for (var i = 0 ; i < allSkycons.length; i++){
-            var iconDataValueForElement = allSkycons[i].dataset.icon 
-            skycons( iconDataValueForElement, i+1 )
     }
     containerEl.innerHTML = htmlString
     
