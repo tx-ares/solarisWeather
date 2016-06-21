@@ -62,13 +62,17 @@ button {
 
 input {
 	/* height: 100px; */
-	margin-top:5vh;
+	margin-top: 5vh;
 	padding: 5px;
 	width: 98%;
 	text-decoration: none;
-	font-size:3em;
+	font-size: 3em;
 	background: rgba(0 ,0 ,0, 0);
 	border: none;
+}
+
+canvas {
+    vertical-align: top;
 }
 
 #locationSearch:focus {
@@ -91,9 +95,9 @@ input {
 
 #tempContainer {
 	/* margin-top:5vh; */
-	height:60vh;
-	padding: 10vh 0 10vh 0;
-	margin: 8vh 0 5vh 0;
+	height: 60vh;
+	padding: 5vh 0 5vh 0;
+	margin: 2vh 0 2vh 0;
 
 }
 
