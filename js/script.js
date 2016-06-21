@@ -14,6 +14,8 @@ var containerEl = document.querySelector("#tempContainer")
 var currentlyButtonEl = document.querySelector(".currently")
 var hourlyButtonEl = document.querySelector(".hourly")
 var dailyButtonEl = document.querySelector(".daily")
+//Skycon Nodes
+var allSkycons = document.querySelectorAll("canvas.skycon")
 
 
 //2 - Fetch our coordinates.
@@ -95,13 +97,10 @@ function dailyToHTML(jsonData) {
         }
 
         containerEl.innerHTML = htmlString
-        var allSkycons = document.querySelectorAll('canvas.skycon')
-
-        for (var i = 0 ; i < allSkycons.length; i++){
-            var iconDataValueForElement = allSkycons[i].dataset.icon 
-            skycons( iconDataValueForElement, i+1 )
-    }
-    
+        for(var i = 0; i < allSkycons.length; i++){
+            var iconData = allSkycons[i].dataset.icon
+            skycons(iconData, i++)
+        }  
 }
 
 
@@ -136,9 +135,9 @@ function hourlyToHTML(jsonData) {
         // skycons(iconString, i + 1)
     }
     containerEl.innerHTML = htmlString
-    for (var i = 0 ; i < allSkycons.length; i++){
-            var iconDataValueForElement = allSkycons[i].dataset.icon 
-            skycons( iconDataValueForElement, i+1 )
+    for(var i = 0; i < allSkycons.length; i++){
+            var iconData = allSkycons[i].dataset.icon
+            skycons(iconData, i++)
     }
 }
 
