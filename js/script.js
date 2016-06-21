@@ -59,7 +59,7 @@ function currentlyToHTML(jsonData) {
 
     // console.log(jsonData)
     containerEl.innerHTML = htmlString
-    skycons(iconString)
+    skycons(iconString, 1)
 }
 
 function dailyToHTML(jsonData) {
@@ -69,7 +69,7 @@ function dailyToHTML(jsonData) {
 
     htmlString += '<p>' + jsonData.daily.summary + '</p>'
 
-    for (var i = 0; i < 5; i++) {
+    for (var i = 1; i < 6; i++) {
         var dayObject = daysArray[i]
         var iconString = dayObject.icon
         console.log(dayObject)
@@ -82,7 +82,7 @@ function dailyToHTML(jsonData) {
         // and you will pass it into the skycons function, so that each skycon is 
         // synched up with the weather-day that you are adding it to.
         htmlString += '<div class="day">'
-        htmlString += '<canvas id="' + iconId + '" width="128" height="128"></canvas>'
+        htmlString += '<canvas class="skycon" id="' + iconId + '" width="128" height="128" data-icon="' + iconString + '">' + '</canvas>'
         // console.log(htmlString) 
         htmlString += '<p class="max">' + dayObject.temperatureMax.toPrecision(2) + '&deg; High</p>' ///append the the tempatureMax attribute to the html string//
         htmlString += '<p class="min">' + dayObject.temperatureMin.toPrecision(2) + '&deg; Low</p>' ///append the the tempatureMin attribute to the html string//
@@ -92,15 +92,18 @@ function dailyToHTML(jsonData) {
         console.log(typeof i)
         // skycons(iconString, i)
         console.log(htmlString)
-
-        
-
         }
 
+        containerEl.innerHTML = htmlString
+        var allSkycons = document.querySelectorAll('canvas.skycon')
+
+        for (var i = 0 ; i < allSkycons.length; i++){
+            var iconDataValueForElement = allSkycons[i].dataset.icon 
+            skycons( iconDataValueForElement, i+1 )
     }
-    containerEl.innerHTML = htmlString
     
 }
+
 
 function hourlyToHTML(jsonData) {
     var htmlString = ''
@@ -130,9 +133,13 @@ function hourlyToHTML(jsonData) {
         htmlString += '<p class="hourTemp">' + hourObject.temperature.toPrecision(2) + '&deg;</p>'
         htmlString += '</div>'
         var iconString = jsonData.hourly.icon
-        skycons(iconString)
+        // skycons(iconString, i + 1)
     }
     containerEl.innerHTML = htmlString
+    for (var i = 0 ; i < allSkycons.length; i++){
+            var iconDataValueForElement = allSkycons[i].dataset.icon 
+            skycons( iconDataValueForElement, i+1 )
+    }
 }
 
 
@@ -220,7 +227,7 @@ function skycons(iconString,i) {
     console.log(typeof iconId, iconId)
      
     // you can add to a canvas by it's ID...
-    skycons.add(iconId, Skycons[formattedIcon]);
+    skycons.add("icon" + i , Skycons[formattedIcon]);
 
     // ...or by the canvas DOM element itself.
     //skycons.add(document.getElementById("icon2"), Skycons.RAIN);

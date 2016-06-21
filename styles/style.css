@@ -79,6 +79,7 @@ input {
     /* border: 2px solid cyan; */
     display: inline-block;
     padding: 20px;
+    width: 18%;
 }
 
 .hour {
