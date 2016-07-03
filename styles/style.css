@@ -16,18 +16,12 @@ p {
 
 body {
     background-image: url("Sunset-In-City.jpg");
-    background-position: bottom-center;
-    background-size: 100%;
+    background-position: bottom;
+    background-size: cover;
     background-repeat: no-repeat;
     background-color: #592b1d;
 }
 
-#nav-container {
-    /* position: fixed; */
-   /*  background-color: rgba(41, 41, 41, .25);
-    border-bottom: 2px solid #6D6B6C; */
-    vertical-align: top;
-}
 
 #title {
     font-family: Days-fontfacekit;
@@ -41,34 +35,13 @@ body {
     height: 70px;
 }
 
-.mainImg {
-    /* border: 2px solid lawngreen; */
-}
-
-.temperature {
-    /* border: 2px solid salmon; */
-}
 
 button {
-	height: 50px;
-	font-size: 2em;
-	border-radius: 25px;
-	padding: 0 40px;
-	width: 30%;
-	margin: 20px 40px;
-	/* text-align: left; */
-	background: rgba(100,100,150, .5);
-}
-
-input {
-	/* height: 100px; */
-	margin-top: 5vh;
-	padding: 5px;
-	width: 98%;
-	text-decoration: none;
-	font-size: 3em;
-	background: rgba(0 ,0 ,0, 0);
-	border: none;
+    font-size: 2em;
+    border-radius: 25px;
+    width: 25%;
+    margin: 5% 1%;
+    background: rgba(100,100,150, .5);
 }
 
 canvas {
@@ -76,30 +49,22 @@ canvas {
 }
 
 #locationSearch:focus {
-	border: none;
+    border: none;
 }
 
 .day {
-    /* border: 2px solid cyan; */
     display: inline-block;
     padding: 20px;
     width: 20%;
 }
 
 .hour {
-    /* border: 2px solid cyan; */
     display: inline-block;
     padding: 20px;
     width: 20%;
 }
 
 #tempContainer {
-	/* margin-top:5vh; */
-	height: 60vh;
-	padding: 5vh 0 5vh 0;
-	margin: 2vh 0 2vh 0;
-
+    height: 40vh;
+    margin: 20vh 0 15vh 0;
 }
-
-/* media queries */
-/* @media(min-width:770px)) */
