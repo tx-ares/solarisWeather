@@ -110,14 +110,18 @@ function dailyToHTML(jsonData) {
 
 
 function hourlyToHTML(jsonData) {
+    console.log("rending hourly")
     var htmlString = ''
     var hoursArray = jsonData.hourly.data
 
-    for (var i = 0; i < 7; i++) {
+    for (var i = 1; i < 10; i++) {
         var hourObject = hoursArray[i]
         console.log(hourObject)
+        
         var iconString = hourObject.icon
         console.log(iconString)
+        var iconId = "icon" + i
+
         var timeStamp = hourObject.time
         var timeConvert = new Date(timeStamp * 1000)
         var hours = (timeConvert.getHours()) % 12;
@@ -133,21 +137,20 @@ function hourlyToHTML(jsonData) {
         }
 
         var minutes = "0" + timeConvert.getMinutes()
-        htmlString += '<div class="hour">'
-        htmlString += '<p class="hourTime">' + hours + ":" + minutes + dayNight + '</p>'
-        htmlString += '<canvas class="skycon" id="icon1" width="128" height="128" data-icon="' + iconString + '">' + '</canvas>'
-        htmlString += '<p class="hourTemp">' + hourObject.temperature.toPrecision(2) + '&deg;</p>'
-        htmlString += '<p class="hourSummary">' + hourObject.summary + '</p>'
-        htmlString += '</div>'
 
-        // skycons(iconString, i + 1)
+        htmlString += '<div class="hour">'
+        htmlString += '<p><span class="hourTime">' + hours + ":" + minutes + dayNight + "</span>"
+        htmlString += '<canvas class="skycon" id="' + iconId + '" width="64" height="64" data-icon="' + iconString + '">' + '</canvas>'
+        htmlString += '<span class="hourTemp">' + hourObject.temperature.toPrecision(2) + '&deg;' + '</span></p>'
+        htmlString += '</div>'
+        skycons(iconString, i + 1)
     }
+
     containerEl.innerHTML = htmlString
     var allSkycons = document.querySelectorAll('canvas.skycon')
 
     for (var i = 0; i < allSkycons.length; i++) {
         var iconData = allSkycons[i].dataset.icon
-        console.log(iconData)
         skycons(iconData, i + 1)
     }
 }
@@ -195,6 +198,7 @@ function router() {
 function fetchData(lat, lng) {
     // console.log('Promise contructed!')
     var url = baseUrl + apiKey + '/' + lat + ',' + lng
+    console.log(url)
     var promise = $.getJSON(url)
     return promise
 }
@@ -262,7 +266,7 @@ function skycons(iconString, i) {
 currentlyButtonEl.addEventListener('click', handleForecastTypeClick)
 hourlyButtonEl.addEventListener('click', handleForecastTypeClick)
 dailyButtonEl.addEventListener('click', handleForecastTypeClick)
-searchBarEl.addEventListener('keydown', searchByCity)
+// searchBarEl.addEventListener('keydown', searchByCity)
 
 
 
