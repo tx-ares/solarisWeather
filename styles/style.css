@@ -20,6 +20,8 @@ body {
     background-size: cover;
     background-repeat: no-repeat;
     background-color: #592b1d;
+    font-size: 12px;
+    font-weight: bolder;
 }
 
 
@@ -68,3 +70,15 @@ canvas {
     height: 40vh;
     margin: 20vh 0 15vh 0;
 }
+
+@media screen and (max-width: 420px){
+
+    .mainImg #viewbuttons {
+        display: block;
+        width: 50%; 
+        border: 2px solid rebeccapurple;   
+    }
+
+}
+
+

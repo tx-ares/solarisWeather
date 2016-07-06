@@ -22,7 +22,6 @@ var allSkycons = document.querySelectorAll('canvas.skycon')
 //2 - Fetch our coordinates.
 //Location Reader
 function geoFinder(geolocation) {
-    // console.log(geolocation)
     //3 - Set our Hash to the return value of our geolocation object.
     location.hash = geolocation.coords.latitude + '/' + geolocation.coords.longitude + '/currently'
 }
@@ -36,7 +35,6 @@ function errorCallback(error) {
 function hashToObject() {
     //10 - First we trim a bit of our hash by taking off the last character which is an extra '/'.
     var hashRoute = location.hash.substr(1)
-        // console.log(hashRoute)
         //11 - Then we split the hash into parts by using any '/'s in it as a divider.  This gives us 3 parts:  a Latitude, a longitude, and a viewType.
     var hashParts = hashRoute.split('/')
 
@@ -50,8 +48,7 @@ function hashToObject() {
 
 //Views
 function currentlyToHTML(jsonData) {
-    // console.log(jsonData)
-    // console.log(jsonData.currently)
+
     var htmlString = ""
     htmlString += '<div id="weatherContainer">'
     htmlString += '<canvas id="icon1" width="128" height="128"></canvas>'
@@ -61,7 +58,6 @@ function currentlyToHTML(jsonData) {
     htmlString += '</div>'
     var iconString = jsonData.currently.icon
 
-    // console.log(jsonData)
     containerEl.innerHTML = htmlString
     skycons(iconString, 1)
 }
@@ -77,25 +73,18 @@ function dailyToHTML(jsonData) {
         var dayObject = daysArray[i]
         var iconString = dayObject.icon
         console.log(dayObject)
-            // console.log(i)
-            // var counter = i++
 
         var iconId = "icon" + i
-        console.log(typeof iconId, iconId)
+
             // create a variable called iconId. iconId will be set for each canvas element,
             // and you will pass it into the skycons function, so that each skycon is 
             // synched up with the weather-day that you are adding it to.
         htmlString += '<div class="day">'
         htmlString += '<canvas class="skycon" id="' + iconId + '" width="128" height="128" data-icon="' + iconString + '">' + '</canvas>'
-            // console.log(htmlString) 
         htmlString += '<p class="max">' + dayObject.temperatureMax.toPrecision(2) + '&deg; High</p>' ///append the the tempatureMax attribute to the html string//
         htmlString += '<p class="min">' + dayObject.temperatureMin.toPrecision(2) + '&deg; Low</p>' ///append the the tempatureMin attribute to the html string//
         htmlString += '</div>'
 
-        console.log(iconString + " <<< this is getting passed into skycons.")
-        console.log(typeof i)
-            // skycons(iconString, i)
-        console.log(htmlString)
     }
 
     containerEl.innerHTML = htmlString
@@ -116,16 +105,15 @@ function hourlyToHTML(jsonData) {
 
     for (var i = 1; i < 10; i++) {
         var hourObject = hoursArray[i]
-        console.log(hourObject)
         
         var iconString = hourObject.icon
-        console.log(iconString)
+
         var iconId = "icon" + i
 
         var timeStamp = hourObject.time
         var timeConvert = new Date(timeStamp * 1000)
         var hours = (timeConvert.getHours()) % 12;
-        // console.log(hours)
+
         var dayNight = ""
         if (timeConvert.getHours() > 12) {
             dayNight = "PM"
@@ -159,17 +147,15 @@ function hourlyToHTML(jsonData) {
 //5 - Our router will handle many functions, first though, we need it to check if there's a hash, if there isn't it will assign one with our location reader function!
 //Router
 function router() {
-    // console.log('router activated.')
 
     //6 - This will happen first since the page doesn't start with a hash set, this condition will give it one!  How nice.
     if (!location.hash) {
-        // console.log("Blank hash detected, finding one...")
+
         navigator.geolocation.getCurrentPosition(geoFinder, errorCallback)
         return
     }
     //12 - The return data from hashToObject is an object we will call hashdata with lat, lng, and viewType as keys. 
     var hashData = hashToObject()
-        // console.log(hashData)
 
     //13 - We FINALLY begin to make our promise by passing in our hashData to fetchData.
     var weatherPromise = fetchData(hashData.lat, hashData.lng)
@@ -177,17 +163,14 @@ function router() {
     //15 - Now , that we have contructed our promise and returned it here, it's ready to be read with .then into any view that matches the viewType specified by the button that's pressed!
     //     Remember our buttons are assigning new viewType values each time they're clicked, giving the router the info it needs to render the right view! Done-zo.
     if (hashData.viewType === 'daily') {
-        // console.log("Daily view rendered!")
         weatherPromise.then(dailyToHTML)
     }
 
     if (hashData.viewType === 'hourly') {
-        // console.log("Hourly view rendered!")
         weatherPromise.then(hourlyToHTML)
     }
 
     if (hashData.viewType === 'currently') {
-        // console.log("Currently view rendered!")
         weatherPromise.then(currentlyToHTML)
     }
 
@@ -196,7 +179,6 @@ function router() {
 
 //14 - fetchData will then construct our string to query our api for data!  Almost done!
 function fetchData(lat, lng) {
-    // console.log('Promise contructed!')
     var url = baseUrl + apiKey + '/' + lat + ',' + lng + "?callback?"
     console.log(url)
     var promise = $.getJSON(url)
@@ -208,20 +190,17 @@ function fetchData(lat, lng) {
 //Handlers
 function handleForecastTypeClick(eventObj) {
     var viewType = eventObj.target.className
-        // console.log(viewType)
     if (!viewType) {
         return
     }
     //9 - Additionally, we create a new hash with hashToObject()
     var hashData = hashToObject()
-        // console.log(hashData)
     location.hash = hashData.lat + '/' + hashData.lng + '/' + viewType
 }
 
 function searchByCity(eventObj) {
     if (eventObj.keyCode === 13) {
         var inputCity = searchBarEl.value
-        console.log(inputCity)
         searchBarEl.value = ''
     }
 }
@@ -266,7 +245,6 @@ function skycons(iconString, i) {
 currentlyButtonEl.addEventListener('click', handleForecastTypeClick)
 hourlyButtonEl.addEventListener('click', handleForecastTypeClick)
 dailyButtonEl.addEventListener('click', handleForecastTypeClick)
-// searchBarEl.addEventListener('keydown', searchByCity)
 
 
 
@@ -274,5 +252,3 @@ dailyButtonEl.addEventListener('click', handleForecastTypeClick)
 //Homepage Loader
 window.addEventListener('hashchange', router)
 router()
-
-// initialize()
